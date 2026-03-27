@@ -1,0 +1,6 @@
+Para transferir datos de la maquina local a el servidor hacemos
+scp /direccionDelArchivo usuario@ip:Carpeta
+Los dos puntos representan el directorio home
+Luego nos pide la contraseña y listo
+
+

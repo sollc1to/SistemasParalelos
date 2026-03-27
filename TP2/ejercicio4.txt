@@ -1,0 +1,68 @@
+(b)
+Código:
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --partition=Blade
+#SBATCH -o salida.txt
+#SBATCH -e errores.txt
+echo Iniciando el programa
+./serie
+echo Fin del programa
+
+
+Salida del programa: 
+
+Submitted batch job 163687.
+
+En este caso estamos enviandole un script para ejecutar con batch.
+
+-e: Dirige la salida de errores a un archivo.
+--exclusive: Job allocation can not share nodes with other running
+nodes.
+-N: Request that a minimun of minnodes nodes be allocated to this job.
+if only one number is specified, this is used as both the minimun and maximun node count.
+
+-o: Salida en el .txt especificado.
+ 
+--partition= Blade: Request a specific partition for the resource allocation.
+
+
+(e)
+Salida:
+
+
+Iniciando el programa
+Ejecutando en nodo nodo1, core 6
+Fin del programa
+
+
+Archivo serie.c: 
+
+
+#define _GNU_SOURCE // sched_getcpu(3) is glibc-specific
+#include <stdio.h>
+#include <unistd.h>
+#include <sched.h>
+
+int main( int argc, char *argv[]) {
+   char hostname[128];
+   gethostname(hostname, sizeof(hostname));
+
+   printf("Ejecutando en nodo %s, core %d\n", hostname, sched_getcpu());
+   return 0;
+}
+
+
+(f) Para modificar el nodo (computadora) que ejecuta las operaciones, agregue en el .txt launch_series.sh
+La línea --partition= Blade --nodelist=node16. Verifique que el nodo 16 estaba libre con sinfo -a, este nodo pertenece
+a la particion Blade por lo que hay que especificarla.
+
+(h) 
+En el script agregue la linea --nodelist=nodo6
+Y en la linea de comando puse sbatch --nodelist=nodo16 launch_Serie.sh
+Y en la salida especifica que la ejecucion se realizo con el nodo 16, core 0.
+Por lo que tiene prioridad la línea de comando.
+
+
+

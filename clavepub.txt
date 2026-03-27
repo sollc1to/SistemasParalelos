@@ -1,0 +1,7 @@
+Para colocar solo la contraseña una vez en la conexion al cluster
+Ingresamos a ~/.shh y deberiamos tener dos claves, id_rsa e id_sra.pub
+Si no tenemos clave, hacemos ssh-keygen y va a generar las dos claves
+Luego, para copiar la clave publica al servidor hacemos ssh-copy-id usuario@ip
+y listo :D
+
+
