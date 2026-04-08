@@ -1,0 +1,28 @@
+La ventaja que vemos en utilizar la estructura del ejercicio3.png es que al 
+ser memoria dinámica, puede crecer sin que nos tengamos que preocupar por
+el como vamos a organizar la estructura.
+
+
+En el programa del ejercicio 3, optimizamos el uso de memoria
+utilizando el tipo unsigned char en vez de int, porque solo guardamos
+0 o 1 en la matriz por lo que era necesario utilizar 4 Bytes.
+Tambien alinemos la memoria a posiciones multiplo de 8. El resultado fue:
+
+Programa original: 
+Memoria usada: 1563528 KB
+
+real	0m1,574s
+user	0m1,389s
+sys	0m0,184s
+
+Programa optimizado: 
+Memoria usada: 391768 KB
+real	0m1,518s
+user	0m1,466s
+sys	0m0,052s
+
+Podemos ver como hay una excelente mejora en la optimizacion del espacio
+utilizado.
+
+
+

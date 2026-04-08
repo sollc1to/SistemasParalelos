@@ -1,0 +1,7 @@
+Si el programa se agranda mucho, el problema sucedera en cache. Es decir tendremos mas fallos de cache.
+
+Ver el programa perf como utilizarlo para ver eventos de la ejecucion de un programa.
+
+El profe hizo 10.000*64 /1024 pero no entiendo bien, ver por que.
+Ver de nuevo el video de las formulas, el speedup, y saber interpretar los resultados.
+Esta en el TP4 pero igual ver la teoria y entenderla bien.

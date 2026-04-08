@@ -1,0 +1,18 @@
+Tiempo de ejecucion de ejercicio4.c sin optimizar:
+
+real	0m0,528s
+user	0m0,526s
+sys	0m0,001s
+
+Tiempo de ejecucion optimizado:
+real	0m0,216s
+user	0m0,214s
+sys	0m0,003s
+
+Es conveniente utilizar funciones cuando el código es grande, complejo o se reutiliza varias veces, ya que mejora la modularidad, legibilidad y mantenimiento del programa.
+
+En el caso de funciones pequeñas, podría existir un overhead debido al costo de llamada (pasaje de parámetros, salto, etc.), lo que puede afectar el rendimiento en bucles intensivos.
+
+Sin embargo, los compiladores modernos pueden aplicar optimizaciones como inlining, eliminando ese overhead. Por lo tanto, el uso de funciones pequeñas no necesariamente implica una pérdida de rendimiento.
+
+Además, el uso excesivo de inlining puede aumentar el tamaño del código, lo que también debe considerarse.

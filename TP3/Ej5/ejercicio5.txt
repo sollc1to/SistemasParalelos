@@ -1,0 +1,26 @@
+Tiempo de ejecucion programa 1:
+
+real	0m0,085s
+user	0m0,085s
+sys	0m0,000s
+
+Tiempo de ejecucion programa 2:
+
+real	0m0,075s
+user	0m0,071s
+sys	0m0,004s
+
+Tiempo de ejecucion programa 3:
+
+real	0m0,027s
+user	0m0,023s
+sys	0m0,004s 
+Podemos observar que del programa 1 al programa 2 disminuye el tiempo de ejecución debido al desenrollado del bucle.
+ Al incrementarse i de a 4, la cantidad de iteraciones es menor, y por lo tanto también disminuye el costo asociado
+ al control del bucle (comparaciones, saltos e incrementos).
+
+Del programa 2 al programa 3 vuelve a disminuir el tiempo de ejecución porque se reducen las dependencias entre instrucciones.
+ En el programa 2, varias sumas consecutivas se realizan sobre la misma variable a, por lo que cada operación depende del
+ resultado de la anterior. En cambio, en el programa 3 se utilizan varias variables acumuladoras (a, a1, a2, a3),
+ permitiendo mayor paralelismo a nivel de instrucciones y evitando esperas innecesarias. Finalmente, al terminar el bucle,
+ se combinan los acumuladores en una única suma final.

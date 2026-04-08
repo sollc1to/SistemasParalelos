@@ -1,0 +1,10 @@
+Con el -O el compilador trata de reducir el tiempo de ejecucion y el tamaño del codigo,
+sin realizar optimizaciones que tomen mucho tiempo del compilador.
+
+-O0: No realiza ninguna optimizacion. Default option.
+-O2: Optimiza utilizando aquellas optimizaciones que no representan un compromiso entre espacio-velocidad.
+Incrementa el tiempo de compilacion y el codigo generado. 
+Activa las banderas de -O1 y más.
+
+-O3: Optimiza más que -O2. Activa otras flags ademas de las que activa -O2.
+
