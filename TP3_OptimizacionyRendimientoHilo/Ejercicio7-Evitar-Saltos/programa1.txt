@@ -1,0 +1,49 @@
+================================================================
+EJERCICIO 7 - TECNICA: EVITAR SALTOS CONDICIONALES
+================================================================
+
+PROGRAMA ORIGINAL:
+Usa un unico doble loop con un switch adentro que evalua
+el valor de i en cada iteracion para decidir que valor
+asignar a m[i][j].
+
+El problema es que el switch genera un salto condicional
+en cada iteracion del loop interno. Como el loop interno
+se ejecuta X = 1.000.000 veces por cada valor de i, y i
+va de 0 a 899, el switch se evalua 900 * 1.000.000 =
+900.000.000 veces en total. Cada evaluacion implica una
+comparacion y un salto, lo que genera presion sobre el
+predictor de ramas del procesador.
+
+PROGRAMA OPTIMIZADO (programa1op.c):
+Se eliminan los saltos condicionales separando el loop
+en tres loops independientes, uno por cada rango de i:
+
+    - Loop 1: i de 0 a 299   -> m[i][j] = 0
+    - Loop 2: i de 300 a 599 -> m[i][j] = 1
+    - Loop 3: i de 600 a 899 -> m[i][j] = 2
+
+De esta forma, dentro de cada loop no hay ninguna
+condicion que evaluar: el valor a asignar es fijo y
+conocido en tiempo de compilacion. El procesador ejecuta
+las instrucciones de forma lineal sin necesidad de
+predecir ni tomar decisiones en cada iteracion.
+
+HIPOTESIS SOBRE LA DIFERENCIA DE TIEMPOS:
+Se espera que el programa optimizado sea mas rapido porque:
+
+1. Se eliminan 900.000.000 evaluaciones del switch.
+2. Se elimina el overhead de saltos condicionales dentro
+   del loop mas interno, que es el de mayor frecuencia.
+3. El predictor de ramas del procesador no necesita
+   intervenir, evitando penalizaciones por mispredictions.
+4. El compilador puede generar codigo mas simple y directo
+   para cada loop al no tener logica condicional interna.
+
+TIEMPOS DE EJECUCION:
+Programa original:  real  pendiente  user  pendiente  sys  pendiente
+Programa optimizado: real  pendiente  user  pendiente  sys  pendiente
+
+(completar con los valores obtenidos al ejecutar con time)
+
+================================================================

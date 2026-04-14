@@ -1,0 +1,129 @@
+================================================================
+SINFO - COMANDOS Y INTERPRETACION
+================================================================
+
+¿Que es sinfo?
+sinfo es un comando de SLURM (Simple Linux Utility for Resource Management),
+que es el gestor de recursos y trabajos del cluster.
+Sirve para consultar el estado de las particiones y los nodos disponibles.
+
+----------------------------------------------------------------
+¿Que es una particion?
+----------------------------------------------------------------
+Una particion es una cola de trabajos con politicas propias:
+- Nodos asignados a esa cola
+- Tiempo maximo de ejecucion
+- Prioridad respecto a otras particiones
+- Restricciones de acceso (quien puede usarla)
+
+La particion marcada con * es la particion por defecto,
+es decir, la que se usa automaticamente si no se especifica otra
+al enviar un trabajo.
+
+----------------------------------------------------------------
+JERARQUIA DEL CLUSTER
+----------------------------------------------------------------
+
+Cluster
+ └── Nodo (maquina fisica)
+      └── Socket (zocalo fisico donde se enchufa el procesador)
+           └── Core (nucleo fisico dentro del procesador)
+                └── Thread (hilo logico, via Hyper-Threading)
+
+- Un nodo es una computadora dentro del cluster.
+- Un socket es el slot fisico de la placa madre donde va el CPU.
+- Un core es la unidad de procesamiento dentro del CPU.
+- Un thread es un hilo logico. Con Hyper-Threading, cada core
+  puede manejar 2 threads simultaneos.
+
+Ejemplo: 2 sockets x 4 cores x 1 thread = 8 CPUs logicas por nodo.
+
+----------------------------------------------------------------
+COMANDO 1
+----------------------------------------------------------------
+
+$ sinfo -o '%9P %5D %7X %5Y %4c %7Z %10N %11e'
+
+La flag -o especifica el formato de salida.
+Los numeros despues de % indican el ancho del campo (espaciado),
+no cambian el valor mostrado.
+
+SALIDA:
+PARTITION NODES SOCKETS CORES CPUS THREADS NODELIST   FREE_MEM
+Blade*    16    2       4     0/12  1       nodo[1-16] 2034-6064
+XeonPHI   1     1       64    0/0/  1       XeonPHI    N/A
+GPUS      2     1       1     0/0/  1       GPU[1-2]   N/A
+
+INTERPRETACION DE CADA CAMPO:
+
+%P - PARTITION
+     Nombre de la particion. El * indica que es la particion por defecto.
+
+%D - NODES
+     Numero total de nodos en esa particion.
+     Blade tiene 16 nodos.
+
+%X - SOCKETS
+     Numero de sockets por nodo (cantidad de procesadores fisicos).
+     Blade tiene 2 sockets por nodo.
+
+%Y - CORES
+     Numero de cores por socket.
+     Blade tiene 4 cores por socket → 2 x 4 = 8 cores por nodo.
+
+%c - CPUS
+     Formato: allocated/total (CPUs logicas por nodo).
+     0/12 → 0 CPUs en uso de 12 disponibles (nodo ocioso).
+     0/0/ → informacion no disponible para ese nodo.
+
+%Z - THREADS
+     Numero de threads por core (hilos logicos por nucleo).
+     1 → sin Hyper-Threading activado.
+
+%N - NODELIST
+     Lista de nodos. nodo[1-16] es notacion comprimida
+     equivalente a nodo1, nodo2, ..., nodo16.
+
+%e - FREE_MEM
+     Memoria libre actualmente en el nodo, en MB.
+     2034-6064 → es un rango porque cada nodo tiene distinta
+     memoria libre en ese momento. No es un valor fijo.
+     N/A → informacion no disponible (nodo caido o sin reporte).
+
+----------------------------------------------------------------
+COMANDO 2
+----------------------------------------------------------------
+
+$ sinfo -o '%9P %10N %t'
+
+SALIDA:
+PARTITION NODELIST   STATE
+Blade*    nodo[1-16] idle
+XeonPHI   XeonPHI    down*
+GPUS      GPU[1-2]   down*
+
+INTERPRETACION DE CADA CAMPO:
+
+%P - PARTITION
+     Nombre de la particion. * indica particion por defecto.
+
+%N - NODELIST
+     Lista de nodos de esa particion.
+
+%t - STATE
+     Estado actual de los nodos (forma abreviada).
+
+     idle   → El nodo esta libre, no tiene trabajos asignados,
+               listo para recibir uno.
+
+     down*  → El nodo esta fuera de servicio. El asterisco indica
+               que hay un motivo registrado en el sistema.
+               Se puede consultar con: scontrol show node <nombre>
+
+     Otros estados posibles (no aparecen en esta salida pero
+     pueden aparecer en el parcial):
+     alloc  → todos los recursos del nodo estan asignados.
+     mix    → el nodo tiene recursos parcialmente asignados.
+     drain  → el nodo esta siendo vaciado, no acepta nuevos trabajos.
+
+================================================================

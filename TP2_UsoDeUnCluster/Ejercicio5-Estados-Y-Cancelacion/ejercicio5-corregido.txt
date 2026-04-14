@@ -1,0 +1,142 @@
+================================================================
+SCONTROL Y SQUEUE - CONSULTA DE JOBS EN SLURM
+================================================================
+
+¿Que es scontrol show job?
+Muestra informacion detallada de un job especifico.
+Se usa como: scontrol show job <JOBID>
+Es util para diagnosticar problemas o verificar como quedo
+configurado un trabajo despues de enviarlo.
+
+¿Que es squeue?
+Muestra el estado actual de los jobs en la cola.
+Lista todos los trabajos encolados o en ejecucion.
+
+----------------------------------------------------------------
+INCISO (a) - scontrol show job
+----------------------------------------------------------------
+
+Salida relevante del comando:
+
+    JobId=163694 JobName=launch_serie.sh
+    UserId=uncoma31(1126) GroupId=uncoma31(1126)
+    JobState=COMPLETED Reason=None
+    ExitCode=0:0
+    RunTime=00:00:00 TimeLimit=365-00:00:00
+    SubmitTime=2026-03-26T22:30:10
+    StartTime=2026-03-26T22:30:10 EndTime=2026-03-26T22:30:10
+    Partition=Blade
+    ReqNodeList=nodo16
+    NodeList=nodo16
+    BatchHost=nodo16
+    NumNodes=1 NumCPUs=8 NumTasks=0
+    Command=/nethome/uncoma31/TP2/launch_serie.sh
+    WorkDir=/nethome/uncoma31/TP2
+    StdErr=/nethome/uncoma31/TP2/errores.txt
+    StdOut=/nethome/uncoma31/TP2/salida.txt
+
+CAMPOS IMPORTANTES:
+
+JobState=COMPLETED
+    El job termino correctamente.
+
+ExitCode=0:0
+    Formato: codigo_de_salida:codigo_de_señal
+    0:0 significa que el programa termino sin errores y sin
+    ser terminado por una señal del sistema.
+
+RunTime=00:00:00
+    El job tardo menos de un segundo en ejecutarse.
+
+TimeLimit=365-00:00:00
+    Tiempo maximo permitido: 365 dias. No se especifico limite,
+    SLURM usa el maximo de la particion.
+
+ReqNodeList=nodo16
+    Nodo que se solicito explicitamente con --nodelist.
+
+NodeList=nodo16
+    Nodo donde efectivamente se ejecuto. Coincide con el solicitado.
+
+NumCPUs=8
+    SLURM asigno los 8 CPUs del nodo porque se uso --exclusive.
+
+AllocNode:Sid=frontend:13112
+    El job fue enviado desde el nodo frontend (la maquina desde
+    donde los usuarios interactuan con el cluster, no donde
+    se ejecutan los jobs).
+
+WorkDir=/nethome/uncoma31/TP2
+    Directorio de trabajo desde donde se ejecuto el script.
+    Las rutas relativas del script se resuelven desde aca.
+
+----------------------------------------------------------------
+INCISO (b) - squeue con job en ejecucion
+----------------------------------------------------------------
+
+Salida:
+
+    JOBID PARTITION  NAME      USER     ST  TIME  NODES NODELIST
+    163695    Blade  sleep.sh  uncoma31  R   0:06  1     nodo1
+
+CAMPOS:
+
+JOBID     → ID unico del trabajo asignado por SLURM.
+PARTITION → Particion donde se esta ejecutando.
+NAME      → Nombre del script enviado.
+USER      → Usuario que envio el job.
+ST        → Estado. R = Running (en ejecucion).
+TIME      → Tiempo que lleva ejecutando: 6 segundos.
+NODES     → Cantidad de nodos asignados: 1.
+NODELIST  → Nombre del nodo donde corre: nodo1.
+
+----------------------------------------------------------------
+INCISO (c) - squeue con job pendiente
+----------------------------------------------------------------
+
+Salida:
+
+    JOBID PARTITION  NAME      USER     ST  TIME  NODES NODELIST(REASON)
+    168257    Blade  launch_s  uncoma31 PD   0:00  1     (Resources)
+    168256    Blade  sleep.sh  uncoma31  R   0:43  1     nodo3
+
+ESTADOS:
+
+R  - Running: el job esta corriendo actualmente.
+PD - Pending: el job esta esperando que se liberen recursos.
+
+REASON: (Resources)
+    El job 168257 esta pendiente porque no hay recursos disponibles
+    en este momento. El nodo esta siendo usado por el job 168256.
+    Cuando sleep.sh termine, SLURM asignara los recursos al
+    job pendiente automaticamente.
+
+Notar que launch_s es el nombre truncado de launch_serie.sh.
+squeue limita el ancho de la columna NAME por defecto.
+
+----------------------------------------------------------------
+INCISO (e) - TIME LIMIT
+----------------------------------------------------------------
+
+Directiva: #SBATCH --time=00:01:05
+
+Indica el tiempo maximo que tiene el job para ejecutarse:
+en este caso 1 minuto y 5 segundos.
+
+Si el job no termina antes de ese tiempo, SLURM lo cancela
+automaticamente cuando se cumple el limite. El proceso recibe
+una señal SIGTERM primero (puede manejarse), y luego SIGKILL
+si no termino (no se puede ignorar).
+
+Esto es util para:
+- Evitar que un job cuelgue indefinidamente y bloquee recursos.
+- Cumplir con las politicas de tiempo maximo de la particion.
+- Estimar mejor el tiempo real de ejecucion del programa.
+
+Formato del campo --time: dias-horas:minutos:segundos
+Ejemplos:
+    --time=00:01:05     →  1 minuto 5 segundos
+    --time=02:00:00     →  2 horas
+    --time=1-00:00:00   →  1 dia
+
+================================================================

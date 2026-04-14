@@ -1,0 +1,28 @@
+ANALISIS DE TIEMPOS DE EJECUCION
+
+Programa 1:  real 0m0,085s  user 0m0,085s  sys 0m0,000s
+Programa 2:  real 0m0,075s  user 0m0,071s  sys 0m0,004s
+Programa 3:  real 0m0,027s  user 0m0,023s  sys 0m0,004s
+
+DE PROGRAMA 1 A PROGRAMA 2:
+El tiempo disminuye debido al desenrollado del bucle.
+Al incrementar el indice de a 4 en lugar de 1, la cantidad
+de iteraciones se reduce a la cuarta parte. Esto disminuye
+el costo asociado al control del bucle: menos comparaciones,
+menos saltos condicionales y menos incrementos del indice
+por cada unidad de trabajo realizada.
+
+DE PROGRAMA 2 A PROGRAMA 3:
+El tiempo vuelve a disminuir porque se reducen las dependencias
+entre instrucciones (hazards de datos).
+En el programa 2, todas las sumas acumulan sobre una unica
+variable a, por lo que cada operacion debe esperar a que
+la anterior termine antes de poder ejecutarse. Esto impide
+que el procesador aproveche el paralelismo a nivel de
+instrucciones (ILP).
+En el programa 3 se usan cuatro variables acumuladoras
+independientes (a, a1, a2, a3). Como no hay dependencia
+entre ellas, el procesador puede ejecutar varias sumas
+en paralelo dentro del mismo ciclo de reloj, sin esperas.
+Al terminar el bucle, los cuatro acumuladores se combinan
+en una suma final para obtener el resultado.

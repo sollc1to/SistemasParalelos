@@ -1,0 +1,31 @@
+Los resultados muestran un comportamiento opuesto al esperado en un estudio de escalabilidad fuerte: 
+el tiempo de ejecución crece al aumentar el número de threads, en lugar de reducirse.
+
+Con 1 thread el programa tarda ~10.7 µs. Con 2 threads ya sube a ~78 µs, y con 8 threads llega a 
+~282 µs — es decir, 26 veces más lento que la ejecución secuencial. El speedup nunca supera 1 y 
+la eficiencia colapsa a menos del 1% con 8 cores.
+
+La causa más probable es que el problema es demasiado pequeño para amortizar el overhead de OpenMP. 
+Crear, sincronizar y destruir threads tiene un costo fijo (típicamente en el orden de decenas de microsegundos). 
+Cuando T(1) ≈ 10 µs, ese overhead supera por mucho el trabajo paralelo real, y el rendimiento empeora con cada thread adicional. 
+Esto ilustra perfectamente la Ley de Amdahl en su límite: si la fracción paralelizable es insignificante respecto al overhead, más 
+cores solo perjudican.
+
+Para observar escalabilidad real habría que aumentar el tamaño del problema (el enunciado propone alto=240.000, ancho=2.000 — con esos 
+valores el comportamiento debería ser diferente), o verificar que el ejecutable se compiló con -O2 y que el nodo efectivamente tiene 
+los cores físicos disponibles sin contención.
+
+
+
+En la escalabilidad débil el criterio de éxito es distinto al de la escalabilidad fuerte. 
+No se busca que el tiempo baje — se busca que se mantenga constante. Si cada core recibe siempre la misma 
+cantidad de trabajo, el tiempo ideal no debería cambiar al agregar cores.
+
+Con 1 y 2 cores el comportamiento es casi perfecto: 3.56 s en ambos casos, lo que indica que duplicar 
+el problema y los cores simultáneamente no genera overhead apreciable. A partir de 4 cores el tiempo empieza a 
+crecer: 6.47 s con 4, 8.62 s con 6, y 9.72 s con 8. Eso es un aumento de aproximadamente 2.7x respecto al tiempo base para llegar a 8 cores.
+
+Este crecimiento refleja que al aumentar la cantidad de threads aparecen costos que no existían con pocos cores: 
+sincronización entre threads, mayor presión sobre la memoria compartida y posible contención en el acceso a caché. 
+El programa no escala débilmente de forma ideal, pero tampoco colapsa — el tiempo crece de forma suave y sublineal, 
+lo que sugiere que la mayor parte del trabajo sí se paraleliza bien y el overhead es real pero acotado.

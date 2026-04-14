@@ -1,0 +1,142 @@
+================================================================
+SBATCH - ENVIO DE JOBS AL CLUSTER
+================================================================
+
+¿Que es sbatch?
+sbatch es el comando de SLURM para enviar un script de trabajo
+(job) a la cola del cluster. El trabajo se ejecuta de forma
+asincrona: se encola y SLURM lo asigna a un nodo cuando hay
+recursos disponibles.
+
+Al enviarlo, SLURM devuelve un ID de trabajo:
+    Submitted batch job 163687
+
+Ese ID sirve para hacer seguimiento con squeue o scancel.
+
+----------------------------------------------------------------
+INCISO (b) - SCRIPT DE ENVIO
+----------------------------------------------------------------
+
+Archivo: launch_serie.sh
+
+    #!/bin/bash
+    #SBATCH -N 1
+    #SBATCH --exclusive
+    #SBATCH --partition=Blade
+    #SBATCH -o salida.txt
+    #SBATCH -e errores.txt
+    echo Iniciando el programa
+    ./serie
+    echo Fin del programa
+
+Las lineas #SBATCH son directivas para SLURM, no son comentarios
+comunes. SLURM las lee al momento de encolar el job.
+
+DIRECTIVAS:
+
+-N 1
+    Solicita minimo 1 nodo para el trabajo. Si se especifica
+    un solo numero, ese valor es tanto el minimo como el maximo.
+    En este caso el job se ejecuta en exactamente 1 nodo.
+
+--exclusive
+    El nodo asignado no se comparte con otros jobs mientras
+    este trabajo este corriendo. Se reserva para uso exclusivo,
+    aunque no se usen todos sus cores.
+
+--partition=Blade
+    Especifica en que particion se encola el trabajo.
+    Si no se indica, se usa la particion por defecto (la marcada
+    con * en sinfo).
+
+-o salida.txt
+    Redirige la salida estandar (stdout) del job a ese archivo.
+    Equivale a hacer ./programa > salida.txt pero gestionado
+    por SLURM.
+
+-e errores.txt
+    Redirige la salida de errores (stderr) del job a ese archivo.
+    Equivale a ./programa 2> errores.txt
+
+----------------------------------------------------------------
+INCISO (e) - PROGRAMA serie.c Y SU SALIDA
+----------------------------------------------------------------
+
+Salida obtenida:
+
+    Iniciando el programa
+    Ejecutando en nodo nodo1, core 6
+    Fin del programa
+
+Codigo fuente serie.c:
+
+    #define _GNU_SOURCE   // necesario para usar sched_getcpu()
+    #include <stdio.h>
+    #include <unistd.h>
+    #include <sched.h>
+
+    int main(int argc, char *argv[]) {
+        char hostname[128];
+        gethostname(hostname, sizeof(hostname));
+        printf("Ejecutando en nodo %s, core %d\n",
+               hostname, sched_getcpu());
+        return 0;
+    }
+
+FUNCIONES USADAS:
+
+gethostname(hostname, size)
+    Obtiene el nombre del nodo donde se esta ejecutando el proceso.
+    En un cluster, cada nodo tiene un hostname distinto (nodo1,
+    nodo2, etc.), por eso sirve para saber en cual cayo el job.
+
+sched_getcpu()
+    Retorna el numero de core logico en el que esta corriendo
+    el proceso en ese instante. Requiere #define _GNU_SOURCE
+    porque es una extension especifica de glibc (no es POSIX).
+
+La combinacion de ambas funciones permite verificar exactamente
+en que nodo y en que core ejecuto SLURM el trabajo.
+
+----------------------------------------------------------------
+INCISO (f) - FORZAR UN NODO ESPECIFICO DESDE EL SCRIPT
+----------------------------------------------------------------
+
+Para ejecutar en un nodo especifico, se agrega en el script:
+
+    #SBATCH --partition=Blade
+    #SBATCH --nodelist=nodo16
+
+--nodelist=nodo16
+    Fuerza a SLURM a asignar el job al nodo indicado.
+    El nodo debe pertenecer a la particion especificada,
+    de lo contrario el job queda en espera o falla.
+
+Se verifico primero con sinfo -a que nodo16 estaba en estado idle
+antes de enviarlo. Nodo16 pertenece a la particion Blade, por eso
+hay que especificar esa particion tambien.
+
+----------------------------------------------------------------
+INCISO (h) - PRIORIDAD: LINEA DE COMANDO VS SCRIPT
+----------------------------------------------------------------
+
+Situacion planteada:
+- En el script se tenia:     --nodelist=nodo6
+- En la linea de comando:    sbatch --nodelist=nodo16 launch_serie.sh
+
+Salida obtenida: el job se ejecuto en nodo16, core 0.
+
+CONCLUSION:
+Los parametros pasados por linea de comando tienen MAYOR prioridad
+que las directivas #SBATCH dentro del script.
+
+Esto es util para reutilizar el mismo script cambiando parametros
+sin modificar el archivo, por ejemplo:
+
+    sbatch --partition=XeonPHI launch_serie.sh
+    sbatch --nodelist=nodo5 launch_serie.sh
+
+El core 0 que aparece en la salida no es fijo: es el core que
+SLURM asigno al proceso en ese nodo en ese momento.
+
+================================================================

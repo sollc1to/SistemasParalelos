@@ -1,0 +1,76 @@
+Tiempo de ejecucion de ejercicio4.c sin optimizar:
+
+real	0m0,528s
+user	0m0,526s
+sys	0m0,001s
+
+Tiempo de ejecucion optimizado:
+real	0m0,216s
+user	0m0,214s
+sys	0m0,003s
+
+Es conveniente utilizar funciones cuando el código es grande, complejo o se reutiliza varias veces, ya que mejora la modularidad, 
+legibilidad y mantenimiento del programa.
+
+En el caso de funciones pequeñas, podría existir un overhead debido al costo de llamada (pasaje de parámetros, salto, etc.), 
+lo que puede afectar el rendimiento en bucles intensivos.
+
+Sin embargo, los compiladores modernos pueden aplicar optimizaciones como inlining, eliminando ese overhead. Por lo tanto, el uso de
+ funciones pequeñas no necesariamente implica una pérdida de rendimiento.
+
+Además, el uso excesivo de inlining puede aumentar el tamaño del código, lo que también debe considerarse.
+
+¿En que casos conviene usar funciones y en cuales no?
+
+FUNCIONES PEQUEÑAS
+No conviene usarlas como funcion separada si se llaman en loops
+criticos. El problema es el overhead de la llamada: apilar
+argumentos, saltar a otra direccion, guardar registros y
+retornar. Para una funcion de 2 o 3 operaciones, ese overhead
+puede costar mas que el cuerpo en si. La solucion es usar
+inline o dejar que el compilador las inlinee con -O2/-O3,
+reemplazando la llamada por el cuerpo directamente.
+
+FUNCIONES GRANDES
+Conviene usarlas como funcion separada. Si se inlinea una
+funcion grande, el cuerpo se replica en cada punto de llamada,
+lo que infla el binario (code bloat) y satura la cache de
+instrucciones (L1i). Con la funcion separada, el codigo existe
+una sola vez en memoria y la cache lo mantiene caliente si
+se llama repetidamente.
+
+OPTIMIZACIONES GLOBALES
+Sin funciones separadas, el compilador ve todo el codigo en
+un bloque y puede propagar constantes, eliminar redundancias
+y reorganizar instrucciones con mas libertad.
+Con funciones separadas, el compilador optimiza cada una de
+forma independiente y pierde visibilidad de como interactuan.
+Esto se puede recuperar usando LTO (Link Time Optimization)
+con el flag -flto, que habilita optimizaciones globales entre
+funciones en tiempo de linkeo.
+
+TAMAÑO DEL CODIGO
+El inlining agresivo (-O3) puede aumentar mucho el tamaño del
+binario porque cada llamada inlineada genera una copia del
+cuerpo. Esto se llama code bloat y es un problema porque:
+- El binario ocupa mas espacio en disco y en memoria.
+- La cache de instrucciones se satura mas facil.
+- Puede hacer el programa mas lento que con -O2.
+Usar funciones separadas para codigo grande mantiene el binario
+compacto y predecible.
+
+RESUMEN
+Caso                 | Separada        | Inline/sin funcion
+---------------------|-----------------|--------------------
+Funcion pequeña      | overhead innec. | conveniente
+Funcion grande       | conveniente     | code bloat
+Optimiz. globales    | pierde vision*  | mas facil compilador
+Tamaño del codigo    | compacto        | puede crecer mucho
+
+* recuperable con -flto
+
+CONCLUSION
+Usar funciones separadas para todo codigo mediano o grande:
+mejora legibilidad, evita code bloat y la cache de instrucciones
+lo agradece. Reservar inline para funciones muy pequeñas que
+se llaman en loops criticos donde el overhead realmente importa.

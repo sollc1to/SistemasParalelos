@@ -1,0 +1,52 @@
+Si utilizamos el comando free, tenemos la siguiente salida: 
+
+               total       usado       libre  compartido   búf/caché  disponible
+Mem:            14Gi       4,0Gi       6,5Gi       161Mi       4,3Gi        10Gi
+Inter:         4,0Gi          0B       4,0Gi
+
+               total       usado       libre  compartido   búf/caché  disponible
+Mem:        15618664     4749068     6212900      178680     4528216    10869596
+Inter:       4194300           0     4194300
+
+Estas unidades estan en KB.
+
+La memoria Inter es la del área de intercambio.
+
+Total -> Memoria RAM total disponible que tenemos.
+Usada -> Memoria RAM que estamos utilizando.
+Libre -> MemoriaRAM  que tenemos libre.
+Compartido ->
+Búf/Caché -> 
+Disponible-> Cuanta memoria RAM puede utilizar un proceso sin swappear.
+
+Un proceso podria utilizar aproximadamente 10869596KB de datos sin utilizar la memoria de intercambio.
+Serian aproximadamente 10 GB.
+
+Qué indica cada columna
+
+Total (15.618.664 KB ~14.9 GB) La RAM física total instalada en el sistema. Es un techo fijo, no cambia.
+
+Usado (4.749.068 KB ~4.5 GB) Memoria actualmente ocupada por procesos en ejecución, el kernel, estructuras
+internas, etc. No está disponible para nuevos procesos.
+
+Libre (6.212.900 KB ~5.9 GB) RAM que nadie está usando para nada. Es memoria completamente ociosa. En Linux, 
+tener mucha memoria "libre" no es un objetivo — el sistema la usa activamente para caché.
+
+Compartido (178.680 KB ~174 MB) Memoria usada por tmpfs (sistema de archivos en RAM) y compartida entre procesos. 
+Generalmente son archivos temporales del sistema o memoria compartida entre procesos relacionados.
+
+Búf/caché (4.528.216 KB ~4.3 GB) Acá está el punto clave de Linux: el kernel toma la memoria "libre" y la usa para 
+cachear archivos del disco (page cache) y buffers de I/O. Esto acelera el sistema, pero esa memoria se libera automáticamente 
+cuando algún proceso la necesita.
+
+Disponible (10.869.596 KB ~10.4 GB) = libre + la parte del búf/caché que el kernel puede liberar sin problema. 
+Este es el número que realmente responde "¿cuánto puede usar un proceso nuevo?". Linux lo calcula internamente 
+con más precisión que simplemente sumar libre + caché
+
+
+(b) Como tenemos aproximadamente 10GB de datos para usar, si un proceso quiere utilizar
+una gran matriz de tipo double (sabiendo que este ocupa 8 Bytes) el maximo numero de 
+elementos que esta matriz tendria seria de: (10.869.596.000)/8 = 1358699500 de elementos.
+Podria sacar la cantidad de filas y columnas calculando la raiz cuadrada de memoriadisponible/8.
+
+

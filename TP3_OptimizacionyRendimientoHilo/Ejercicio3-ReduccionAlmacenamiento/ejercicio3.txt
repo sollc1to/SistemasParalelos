@@ -1,0 +1,37 @@
+Ventajas de matriz de punteros frente a matriz estatica:
+
+La principal ventaja es que el tamaño se define en tiempo de
+ejecucion (no en compilacion) y la memoria se aloja en el heap,
+que soporta varios GB, evitando el stack overflow que causaria
+una matriz grande declarada estaticamente. Ademas, permite filas
+de distinto tamaño (util para matrices triangulares o dispersas)
+y el intercambio de filas es O(1) porque solo se intercambian
+punteros, sin copiar datos. La desventaja es que la memoria no
+es contigua, lo que puede generar cache misses en accesos
+por columna, a diferencia de la matriz estatica que es contigua
+y mas amigable con la cache.
+
+
+En el programa del ejercicio 3, optimizamos el uso de memoria
+utilizando el tipo unsigned char en vez de int, porque solo guardamos
+0 o 1 en la matriz por lo que era necesario utilizar 4 Bytes.
+Tambien alinemos la memoria a posiciones multiplo de 8. El resultado fue:
+
+Programa original: 
+Memoria usada: 1563528 KB
+
+real	0m1,574s
+user	0m1,389s
+sys	0m0,184s
+
+Programa optimizado: 
+Memoria usada: 391768 KB
+real	0m1,518s
+user	0m1,466s
+sys	0m0,052s
+
+Podemos ver como hay una excelente mejora en la optimizacion del espacio
+utilizado.
+
+
+

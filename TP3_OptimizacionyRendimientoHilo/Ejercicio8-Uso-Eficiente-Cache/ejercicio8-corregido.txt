@@ -1,0 +1,130 @@
+================================================================
+EJERCICIO 8 - USO EFICIENTE DE LA CACHE:
+             LOCALIDAD ESPACIAL Y TEMPORAL
+================================================================
+
+CONCEPTOS CLAVE
+----------------------------------------------------------------
+
+Localidad espacial:
+    Principio que dice que si accedemos a una posicion de
+    memoria, es probable que pronto accedamos a posiciones
+    cercanas a ella. Aprovecharlo significa recorrer datos
+    que esten contiguos en memoria.
+
+Localidad temporal:
+    Principio que dice que si accedemos a un dato, es probable
+    que volvamos a usarlo en un corto periodo de tiempo.
+    Aprovecharlo significa reutilizar variables o datos
+    recientes antes de que sean desalojados de la cache.
+
+----------------------------------------------------------------
+PROBLEMA DEL PROGRAMA ORIGINAL - RECORRIDO POR COLUMNAS
+----------------------------------------------------------------
+
+La matriz se declara como punteros: 50.000 filas x 10.000 col.
+Cada entero ocupa 4 bytes, por lo que cada fila ocupa:
+    10.000 * 4 = 40.000 bytes
+
+Cuando se recorre por columnas (m[0][j], m[1][j], m[2][j]...),
+cada cambio de fila implica saltar 40.000 bytes en memoria.
+Esto rompe la localidad espacial porque los datos accedidos
+no son contiguos: estan separados por 40.000 bytes entre si.
+
+Resultado: casi cada acceso provoca un fallo de cache porque
+los datos traidos en la linea de cache anterior nunca se
+vuelven a usar antes de ser reemplazados.
+
+----------------------------------------------------------------
+SOLUCION - RECORRIDO POR FILAS
+----------------------------------------------------------------
+
+Recorriendo por filas (m[i][0], m[i][1], m[i][2]...),
+los accesos son contiguos en memoria.
+
+Con una linea de cache de 64 bytes y enteros de 4 bytes:
+    64 / 4 = 16 enteros por linea de cache
+
+Cada vez que hay un fallo de cache se traen 16 enteros
+consecutivos de la misma fila. Los siguientes 15 accesos
+encuentran sus datos ya en cache.
+
+Resultado: aproximadamente 1 fallo cada 16 accesos,
+en lugar de 1 fallo por acceso.
+
+----------------------------------------------------------------
+CALCULO DE FALLOS DE CACHE
+----------------------------------------------------------------
+
+Parametros:
+    Cache total:      128 KB = 131.072 bytes
+    Linea de cache:   64 bytes
+    Lineas en cache:  131.072 / 64 = 2.048 lineas
+    Matriz:           50.000 filas x 10.000 columnas
+    Total de accesos: 50.000 * 10.000 = 500.000.000
+
+VERSION ORIGINAL (recorrido por columnas):
+    Por cada acceso a m[i][j] hay un fallo de cache porque
+    la siguiente posicion m[i+1][j] esta 40.000 bytes mas
+    adelante y no cabe en la misma linea.
+    Fallos totales: ~500.000.000 (uno por acceso)
+
+VERSION OPTIMIZADA (recorrido por filas):
+    Cada fallo trae 16 enteros utiles y consecutivos.
+    Fallos totales: 500.000.000 / 16 = 31.250.000
+
+DIFERENCIA: la version optimizada genera aproximadamente
+16 veces menos fallos de cache.
+
+----------------------------------------------------------------
+EXPLICACION DEL PROFE - WORKING SET
+----------------------------------------------------------------
+
+El working set al recorrer por columnas es de aprox. 3,2 MB
+porque se acceden a 50.000 lineas de cache distintas
+(50.000 * 64 bytes = 3.200.000 bytes).
+
+Como la cache disponible es solo 128 KB, ese conjunto de datos
+es mucho mayor que la capacidad de la cache. Las lineas cargadas
+se reemplazan antes de poder reutilizarse, lo que impide
+aprovechar la localidad espacial y genera un fallo
+practicamente en cada acceso.
+
+----------------------------------------------------------------
+DATOS DEL PROCESADOR DEL CLUSTER
+----------------------------------------------------------------
+
+Cache L3:
+    Es la cache de mayor tamaño y menor velocidad dentro
+    de la jerarquia. Es compartida entre todos los nucleos
+    y actua como intermediaria entre L1/L2 y la RAM,
+    reduciendo la latencia de acceso a datos frecuentes.
+
+    Tamaño cache L3:          256 KB
+    Tamaño linea de cache:    64 bytes
+
+----------------------------------------------------------------
+TIEMPOS DE EJECUCION
+----------------------------------------------------------------
+
+Version original (recorrido por columnas):
+    real    0m12,881s
+    user    0m11,839s
+    sys     0m1,023s
+
+Version optimizada (recorrido por filas):
+    real    0m2,801s
+    user    0m2,032s
+    sys     0m0,763s
+
+El tiempo real paso de 12,8 segundos a 2,8 segundos,
+una mejora de aproximadamente 4,6x. La diferencia se
+explica por la reduccion drastica de fallos de cache:
+de ~500 millones a ~31 millones, consistente con el
+analisis teorico de 16x menos fallos.
+
+El tiempo sys bajo de 1,023s a 0,763s porque con menos
+fallos de cache hay menos interrupciones al sistema
+operativo para resolver accesos a memoria.
+
+================================================================

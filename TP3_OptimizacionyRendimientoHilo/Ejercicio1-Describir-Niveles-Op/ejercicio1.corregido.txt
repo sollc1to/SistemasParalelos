@@ -1,0 +1,98 @@
+================================================================
+NIVELES DE OPTIMIZACION EN GCC/ICC
+================================================================
+
+-O0 - Sin optimizacion (default)
+----------------------------------------------------------------
+Es el nivel por defecto si no se especifica ningun flag.
+El compilador traduce el codigo casi literalmente, instruccion
+por instruccion, sin modificar nada.
+
+Que hace:
+- No reorganiza ni elimina codigo.
+- Cada variable se lee y escribe en memoria en cada acceso
+  (no se guarda en registros).
+- Las funciones no se inlinean.
+- El codigo generado es predecible y facil de seguir
+  con un debugger.
+
+Para que sirve:
+Desarrollo y debugging. El binario es mas lento pero el
+comportamiento del programa coincide exactamente con lo
+que escribiste.
+
+-O2 - Optimizacion estandar
+----------------------------------------------------------------
+El nivel mas usado en produccion. Activa un conjunto amplio
+de optimizaciones que mejoran la velocidad sin cambiar el
+comportamiento observable del programa.
+
+Que hace:
+- Propagacion de constantes: reemplaza variables que siempre
+  tienen el mismo valor por ese valor directamente.
+- Eliminacion de codigo muerto: borra codigo que nunca
+  se ejecuta.
+- Inlining de funciones pequeñas: evita el overhead de
+  llamadas a funcion.
+- Reordenamiento de instrucciones: reordena para aprovechar
+  mejor el pipeline del procesador.
+- Optimizacion de loops: desenrollado parcial, reduccion
+  de comprobaciones.
+
+Para que sirve:
+Compilacion de software en produccion cuando se quiere
+buen rendimiento sin riesgos.
+
+-O3 - Optimizacion agresiva
+----------------------------------------------------------------
+Incluye todo lo de -O2 mas transformaciones mas agresivas
+que pueden cambiar como se ejecuta el programa internamente.
+
+Que agrega sobre -O2:
+- Vectorizacion automatica (SIMD): convierte loops en
+  instrucciones que operan sobre multiples datos a la vez
+  (SSE, AVX). Muy util en computo numerico.
+- Inlining agresivo: inlinea funciones mas grandes,
+  no solo las pequeñas.
+- Desenrollado de loops mas agresivo: menos saltos
+  condicionales, mas instrucciones por iteracion.
+- Optimizaciones interprocedurales: analiza interacciones
+  entre funciones.
+
+Cuidado con -O3:
+- Puede aumentar el tamaño del binario (code bloat).
+- En algunos casos puede ser mas lento que -O2 por presion
+  sobre la cache de instrucciones.
+- Puede interactuar mal con codigo que asume cierto orden
+  de operaciones en punto flotante.
+
+Para que sirve:
+HPC, procesamiento de señales, simulaciones numericas,
+donde el rendimiento es critico y el codigo fue escrito
+pensando en esto.
+
+================================================================
+TABLA RESUMEN
+================================================================
+
+Nivel | Velocidad  | Binario    | Debug | Uso tipico
+------|------------|------------|-------|---------------------
+-O0   | lento      | grande     | facil | desarrollo/debugging
+-O2   | rapido     | moderado   | dif.  | produccion general
+-O3   | muy rapido | puede cre. | dif.  | HPC/computo numerico
+
+================================================================
+NOTA SOBRE ICC
+================================================================
+
+El compilador de Intel (ICC/ICX) respeta los mismos flags
+-O0, -O2, -O3, pero sus optimizaciones en -O3 son
+especialmente potentes en hardware Intel porque tiene
+conocimiento profundo de las instrucciones AVX-512 y las
+caracteristicas del pipeline de cada microarquitectura
+(Skylake, Ice Lake, etc.).
+
+En contextos de clusters con nodos Intel, ICC puede dar
+mejoras sustanciales sobre GCC con el mismo flag.
+
+================================================================

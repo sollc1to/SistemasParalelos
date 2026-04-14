@@ -1,0 +1,124 @@
+================================================================
+LSCPU Y FREE - INFORMACION DEL NODO
+================================================================
+
+¿Que es lscpu?
+Comando que muestra informacion detallada sobre la arquitectura
+del procesador del nodo donde se ejecuta. Util para conocer
+cuantos cores, sockets, threads y caches tiene la maquina.
+
+----------------------------------------------------------------
+INCISO (a) - SALIDA DE lscpu Y free
+----------------------------------------------------------------
+
+Salida completa del programa:
+
+    Arquitectura:                   x86_64
+    modo(s) de operacion de CPUs:   32-bit, 64-bit
+    Orden de los bytes:             Little Endian
+    Tamaños de las direcciones:     38 bits physical, 48 bits virtual
+    CPU(s):                         8
+    Lista de CPUs en linea:         0-7
+    Hilo(s) por nucleo:             1
+    Nucleo(s) por socket:           4
+    Socket(s):                      2
+    Modo(s) NUMA:                   1
+    ID de fabricante:               GenuineIntel
+    Familia de CPU:                 6
+    Modelo:                         23
+    Nombre del modelo:              Intel(R) Xeon(R) CPU E5405 @ 2.00GHz
+    CPU MHz:                        2000.058
+    Virtualizacion:                 VT-x
+    Cache L1d:                      32K
+    Cache L1i:                      32K
+    Cache L2:                        6144K
+    CPU(s) del nodo NUMA 0:         0-7
+
+                 total       used       free  shared  buff/cache  available
+    Mem:       8167492     140560    4077876   66096     3949056    7696544
+    Swap:            0          0          0
+
+----------------------------------------------------------------
+INCISO (b) - NODO DE EJECUCION
+----------------------------------------------------------------
+
+El trabajo se ejecuto en un nodo de la particion Blade,
+que era el unico con nodos disponibles (estado idle) al
+momento de enviar el job.
+
+----------------------------------------------------------------
+INCISO (c) - CANTIDAD DE SOCKETS
+----------------------------------------------------------------
+
+    Socket(s): 2
+
+El nodo tiene 2 sockets, es decir, 2 procesadores fisicos
+instalados en la placa madre.
+
+----------------------------------------------------------------
+INCISO (d) - MODELO Y CANTIDAD DE CORES
+----------------------------------------------------------------
+
+Nombre del modelo: Intel(R) Xeon(R) CPU E5405 @ 2.00GHz
+
+Calculo de cores totales:
+    2 sockets x 4 nucleos por socket = 8 cores fisicos en total
+
+Esto coincide con CPU(s): 8 en la salida de lscpu.
+
+Como Hilo(s) por nucleo = 1, no hay Hyper-Threading activo,
+por lo que cada core logico corresponde a un core fisico.
+
+----------------------------------------------------------------
+INCISO (e) - ¿UMA O NUMA?
+----------------------------------------------------------------
+
+De la salida:
+    Modo(s) NUMA: 1
+    CPU(s) del nodo NUMA 0: 0-7
+
+Hay un solo nodo NUMA que contiene TODAS las CPUs (0 a 7).
+Esto significa que toda la memoria es accedida de manera
+uniforme por todos los procesadores.
+
+CONCLUSION: la maquina se comporta como UMA
+(Uniform Memory Access).
+
+Diferencia entre UMA y NUMA:
+
+UMA (Uniform Memory Access):
+    Todos los procesadores acceden a la misma memoria
+    con el mismo tiempo de acceso.
+    Tipico en maquinas con pocos sockets.
+
+NUMA (Non-Uniform Memory Access):
+    Cada procesador tiene su propio banco de memoria local.
+    Acceder a memoria de otro procesador es mas lento.
+    Tipico en servidores grandes con muchos sockets.
+
+Aunque lscpu dice "Modo(s) NUMA: 1", eso NO significa que
+la maquina sea NUMA. Significa que hay 1 nodo NUMA, y como
+ese unico nodo contiene todas las CPUs, el comportamiento
+es equivalente a UMA.
+
+----------------------------------------------------------------
+INCISO (f) - MEMORIA DISPONIBLE PARA EL JOB
+----------------------------------------------------------------
+
+De la salida de free (valores en KB):
+
+    Mem: available = 7.696.544 KB ≈ 7,3 GB
+
+ATENCION: el valor esta en KB, no en MB.
+7.696.544 KB = 7.516 MB ≈ 7,3 GB
+
+Ese es el valor real de memoria que puede usar un proceso nuevo
+(libre + cache liberable por el kernel).
+
+Swap: 0
+    No hay espacio de swap configurado en este nodo.
+    Eso significa que si un proceso intenta usar mas memoria
+    que la RAM disponible, el kernel lo mata (OOM killer)
+    en lugar de paginar al disco.
+
+================================================================
