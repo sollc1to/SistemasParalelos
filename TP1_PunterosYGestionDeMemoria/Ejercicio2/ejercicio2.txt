@@ -1,0 +1,5 @@
+Segun la salida del programa archivo3tp.c, podemos ver que la matriz se almacena por filas en la columna.
+LUego de almacenar toda la primer fila, se almacena la columna, y luego la tercera. Por eso en este lenguaje, es eficiente acceder a una
+matriz por filas en vez de columnas.
+
+

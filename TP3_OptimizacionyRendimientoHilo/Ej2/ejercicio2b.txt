@@ -1,0 +1,20 @@
+Tenemos que optimizar el codigo (b) y ejecutarlos mediante el comando time.
+Primero quiero explicar la salida del comando.
+real: Tiempo total transcurrido desde el inicio al fin del programa.
+user: Tiempo de CPU consumido ejecutando el codigo del programa.
+sys: Tiempo de CPU utilizada por el nucleo para llamadas al sistema. 
+
+
+Salida programa sin optimizar:
+
+real    0m3,445s
+user    0m3,442s
+sys     0m0,000s
+
+Salida programa optimizado:
+
+real    0m1,782s
+user    0m1,778s
+sys     0m0,000s
+
+

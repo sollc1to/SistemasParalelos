@@ -1,0 +1,8 @@
+Lo que sucede en nuestro programa es: 
+ -Declaramos una variable entera con el valor 10.
+ -Declaramos un puntero p, y le asignamos como valor la direccion
+  de memoria de nuestra variable con el valor 10.
+ -Cuando imprimimos &x imprimimos la direccion de la variable x.
+ -Cuando imprimimos p, imprimimos el valor asignado de p, es decir la direccion
+ de memoria que guardamos anteriormente.
+ -Cuando imprimimos *p, se muestra el valor del objeto al cual apunta p.

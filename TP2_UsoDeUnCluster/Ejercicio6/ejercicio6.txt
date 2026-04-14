@@ -1,0 +1,60 @@
+(a)
+
+Salida del programa
+
+Inicio programa.
+Arquitectura:                        x86_64
+modo(s) de operación de las CPUs:    32-bit, 64-bit
+Orden de los bytes:                  Little Endian
+Tamaños de las direcciones:          38 bits physical, 48 bits virtual
+CPU(s):                              8
+Lista de la(s) CPU(s) en línea:      0-7
+Hilo(s) de procesamiento por núcleo: 1
+Núcleo(s) por «socket»:              4
+«Socket(s)»                          2
+Modo(s) NUMA:                        1
+ID de fabricante:                    GenuineIntel
+Familia de CPU:                      6
+Modelo:                              23
+Nombre del modelo:                   Intel(R) Xeon(R) CPU           E5405  @ 2.00GHz
+Revisión:                            10
+CPU MHz:                             2000.058
+BogoMIPS:                            4000.11
+Virtualización:                      VT-x
+Caché L1d:                           32K
+Caché L1i:                           32K
+Caché L2:                            6144K
+CPU(s) del nodo NUMA 0:              0-7
+
+Indicadores:                         fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht t$
+              total        used        free      shared  buff/cache   available
+Mem:        8167492      140560     4077876       66096     3949056     7696544
+Swap:             0           0           0
+Fin del programa
+
+
+(b)
+El trabajo se ejecuto en el nodo Blade, es el unico disponible.
+
+(c) EL nodo tiene 2 sockets. 
+
+(d) El modelo del microprocesador es Intel(R) Xeon(R) CPU. Tiene en totla 8 cores o nucleos.
+
+(e) ¿Es UMA o NUMA? 
+ 
+NUMA:                                    
+  Modo(s) NUMA:                          1
+  CPU(s) del nodo NUMA 0:                0-7
+
+Eso nos da a entender que tenmos un solo modo NUMA que contiene todas las CPUs disponibles, es decir tenemos una maquina de modelo UMA.
+Todas las CPUs acceden a la misma memoria en la misma cantidad de tiempo.
+
+
+(f) La cantidad disponible que tenemos para nuestro trabajo es lo que esta en "available" o "disponible".
+Tenemos 7696544 MB disponibles para utilizar, para el SWAP tenemos 0 memoria en total por lo que no se puede utilizar
+mas de la memoria RAM disponible.
+
+
+
+
+

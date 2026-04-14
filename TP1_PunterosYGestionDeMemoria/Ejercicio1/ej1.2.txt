@@ -1,0 +1,10 @@
+En nuestro programa declaramos dos variables enteras (a,b) 
+y dos punteros (x,y)
+
+A la variable a le asignamos el valor 10. A la variable b el valro 20.
+A el puntero x le asignamos la direccion de memoria de la variable a, y a 
+nuestro puntero y le asignamos la direccion de memoria de la variable b.
+LUego, a el puntero x le asignamos el puntero y, es decir el valor de 
+direccion de memoria de la variable b.
+Cuando hacemos *x=5, a el objeto de datos b le asignamos 5.
+

@@ -1,0 +1,2 @@
+A que nos referimos por "sockets por nodo" ?
+no entiendo bien

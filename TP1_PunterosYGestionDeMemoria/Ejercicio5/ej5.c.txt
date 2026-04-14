@@ -1,0 +1,31 @@
+Si utilizamos el comando free, tenemos la siguiente salida: 
+
+               total       usado       libre  compartido   búf/caché  disponible
+Mem:            14Gi       4,0Gi       6,5Gi       161Mi       4,3Gi        10Gi
+Inter:         4,0Gi          0B       4,0Gi
+
+               total       usado       libre  compartido   búf/caché  disponible
+Mem:        15618664     4749068     6212900      178680     4528216    10869596
+Inter:       4194300           0     4194300
+
+Estas unidades estan en KB.
+
+La memoria Inter es la del área de intercambio.
+
+Total -> Memoria RAM total disponible que tenemos.
+Usada -> Memoria RAM que estamos utilizando.
+Libre -> MemoriaRAM  que tenemos libre.
+Búf/Caché -> 
+Disponible-> Cuanta memoria RAM puede utilizar un proceso sin swappear.
+
+Un proceso podria utilizar aproximadamente 10869596KB de datos sin utilizar la memoria de intercambio.
+Serian aproximadamente 10 GB.
+
+(b) Como tenemos aproximadamente 10GB de datos para usar, si un proceso quiere utilizar
+una gran matriz de tipo double (sabiendo que este ocupa 8 Bytes) el maximo numero de 
+elementos que esta matriz tendria seria de: (10.869.596.000)/8 = 1358699500 de elementos.
+
+ 
+
+
+

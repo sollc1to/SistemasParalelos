@@ -1,0 +1,75 @@
+Localidad espacial: Con localidad espacial nos referimos a el utilizamiento de datos que estarán
+en ubicaciones relativamente cercanas en posiciones de memoria.
+
+Localidad temporal: Con este principio nos referimos a el reutilizamiento de un dato en un corto
+período de tiempo.
+
+Con aumentar la localidad espacial, nos referimos a tratar de utilizar datos que estén relativamente cercanos en memoria, mientras que
+aumentar la localidad temporal sería reutilizar una variable que usamos hace un corto periodo de tiempo.
+
+En el codigo proporcionado podemos ver como declaramos una matriz de punteros de 50000 direcciones * 10000 enteros.
+Cuándo recorremos por COLUMNAS en vez de filas en este caso es decir m[1][j],m[2][j],m[3][j]... nos estamos saltando
+por cada cambio de índice en columna 10000*4 Bytes, es decir 40.000 Bytes. ¿Por qué? Porque cada fila puede almacenar 10000 enteros,
+y cada entero ocupa 4 Bytes, por eso con este tipo de recorrido rompemos con el principio de localidd espacial.
+
+Para solucionar la localidad espacial, deberíamos recorrer por filas en vez de columnas, ya que si accedemos a m[i][0], probablemente
+también estén cerca en memoria m[i][1], m[i][2].. por lo que habría menos fallos en caché.
+
+En el recorrido por filas suponiendo que la linea de caché es de 64 Bytes, entrarían 64/4 = 16 enteros por cada línea de caché. Es decir, 
+cada 16 accesos aproximadamente tendríamos un fallo en caché.
+
+En el recorrido por columnas, tenemos una separación de 40000 / 4 = 10000 enteros entre cada columna, por lo que habría probablemente un 
+fallo por cada acceso a la caché suponiendo que la línea de cachpe es de 64 bytes.
+
+
+Preguntar si existe una mejora significativa de la localidad temporal en el programa1op.c
+
+Tiempo sin optimizar:
+
+real	0m12,881s
+user	0m11,839s
+sys	0m1,023s
+
+
+TIempo programa optimizado:
+real	0m2,801s
+user	0m2,032s
+sys	0m0,763s
+
+El nivel 3 de caché (L3) corresponde a la memoria caché de mayor tamaño y menor velocidad dentro de la jerarquía de caché del procesador,
+ y es compartida entre los núcleos. Actúa como intermediaria entre las cachés L1/L2 y la memoria principal, reduciendo la latencia de acceso
+ a datos frecuentemente utilizados.
+
+
+Tamaño de la cache L3: 
+256K
+
+Tamaño de la línea de coherencia de caché: 
+64B
+
+
+Suponiendo que el tamaño de nuestra cache es de 128Kib, es decir de 1024 Bytes, y que cada linea de caché es de 64 Bytes. 
+Tenemos una matriz en la que tenemos 50.000*8 filas y por cada fila 10.000*4 columnas (hablando en bytes)
+Recorremos la matriz completa, tendremos 50.000 accesos para las filas y 10.000 accesos por cada columna.
+En total tenemos 1024/64 = 16 lineas de cache de 64 Bytes.
+
+En la version original del programa, primero accedemos a la posición m[0][0], como no se encuentra en cache se traen 64 bytes
+de la matriz es decir, nos traemos 16 enteros de la posicion m[0][0] a la posicion m[0][15]. Pero que sucede, accedemos a m[0][0] y despues
+queremos acceder a m [1][0], ocurre un fallo de caché, obtiene los 64 bytes correspondientes es decir desde m[1][0] hasta m[1][15],
+luego se quiere acceder a m[2][0] vuelve a ocurrir un fallo de caché, se obtienen los 64 bytes desde m[2][0] hasta m[2][15].. y así sucesivamente.
+Por cada acceso a posición de memoria cometemos un fallo de caché, en total serían 5000.000.000 fallos + el primer acceso a la caché, osea 
+5000.000.001 fallos de caché.
+
+
+En la versión optimizada del programa, accedemos a la posición m[0][0], como no se encuentra en memoria se traen 64 Bytes es decir desde
+m[0][0] hasta m[0][15]. Recorremos desde m[0][0] hasta m[0][15] y recién en m[0][16] se cometerá un fallo de caché.
+Se traen los bytes desde m[0][16] hasta m[0][31]. Aproximadamente cada 16 accesos habría un fallo de caché, teniendo en cuenta que
+tenemos 50.000 filas y 10.000 columnas. Si tenemos 50.000*10.000 = 500.000.000 accesos, entonces tendremos 500.000.000/16 = 31.250.000 fallos de caché.
+Sabiendo que tenemos una memoria de 16 lineas de 64 Bytes, es decir podremos almacenar 256 enteros. Pero esto no nos cambia nada en la cuenta.
+En total tendremos 31.250.000 +1 = 31.250.001 fallos de cache en la version optimizada.
+
+
+Resolucion que hizo el profe: 
+
+El working set al recorrer la matriz por columnas es de aproximadamente 3,2 MB porque se accede a 50.000 líneas de caché distintas (cada una de 64 bytes), mientras que la caché disponible es de solo 128 KB. Como este conjunto de datos es mucho mayor que la capacidad de la caché, las líneas cargada
+s se reemplazan antes de poder reutilizarse, lo que impide aprovechar la localidad espacial. Por eso, prácticamente cada acceso a memoria genera un fallo de 

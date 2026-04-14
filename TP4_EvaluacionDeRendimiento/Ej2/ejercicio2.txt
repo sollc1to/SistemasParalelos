@@ -1,0 +1,14 @@
+Para estimar el tiempo de ejecución para un valor grande como n = 1000000,
+se pueden realizar mediciones con tamaños de entrada más pequeños,
+ejecutando cada caso varias veces y calculando el tiempo promedio
+para reducir el ruido de medición.
+
+Luego se analiza cómo crece el tiempo en función de n; si el comportamiento
+es aproximadamente lineal, se puede estimar el tiempo para el valor grande
+escalando proporcionalmente a partir de una medición conocida, utilizando
+la relación:
+
+T_grande = T_chico * (n_grande / n_chico)
+
+De esta manera se evita ejecutar directamente con entradas muy grandes,
+manteniendo resultados representativos y más estables.

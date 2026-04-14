@@ -1,0 +1,42 @@
+Calculo del speedup: Cuanto mas rapido se ejecuta el programa comparado al tiempo secuencial
+
+S(1) = 0.000010686 / 0.000010686 = 1.00  
+S(2) = 0.000010686 / 0.000078152 = 0.14
+S(4) = 0.000010686 / 0.000156864 = 0.07
+S(6) = 0.000010686 / 0.000200027 = 0.05
+S(8) = 0.000010686 / 0.000282229 = 0.04
+
+
+Calculo de la eficiencia: Que tanto estamos utilizando los recursos paralelos. 
+
+E(1) = 1.00 / 1 = 1.000
+E(2) = 0.14 / 2 = 0.068
+E(4) = 0.07 / 4 = 0.017
+E(6) = 0.05 / 6 = 0.009
+E(8) = 0.04 / 8 = 0.005
+
+
+El speedup y la eficiencia no son métricas independientes:la eficiencia es el speedup normalizado por la cantidad de cores. 
+Si el speedup te dice "¿cuánto gané?", la eficiencia te dice "¿cuánto de lo posible estoy aprovechando?".
+ Por eso siempre cuentan la misma historia, pero a distintas escalas.
+
+El speedup ideal con p cores es exactamente p — si duplicás los cores, deberías tardar la mitad. 
+En este experimento ocurre lo contrario: S(2) = 0.14 significa que con 2 cores el programa es 7 veces más lento que con 1. 
+Y eso empeora progresivamente: S(8) = 0.04, o sea 26 veces más lento con 8 cores que con 1 solo.
+
+La eficiencia traduce ese mismo fenómeno a porcentaje de aprovechamiento. 
+Con 2 cores la eficiencia es 6.8% — de todo el potencial que ofrecen 2 cores, solo se usa el 6.8%. Con 8 cores cae a 0.5%.
+Esto es importante porque el speedup por sí solo podría parecer "no tan grave" (0.04 es un número chico pero abstracto).
+ La eficiencia lo hace concreto: estás desperdiciando el 99.5% del poder de cómputo disponible.
+La relación entre ambas curvas apunta directamente a una causa: el overhead de gestión de threads supera al trabajo real.
+
+Cuando el tiempo de cómputo útil es ~10 µs y crear, sincronizar y destruir threads cuesta decenas de µs, el "trabajo paralelo" 
+desaparece dentro del ruido de la infraestructura. Esto es exactamente lo que modela la Ley de Amdahl: si la fracción paralelizable 
+del problema es ínfima respecto al overhead fijo, agregar cores no ayuda — empeora.
+
+La pendiente negativa del speedup y el colapso de la eficiencia hacia cero no son dos problemas distintos. Son la misma señal vista 
+desde ángulos distintos: este problema, con este tamaño, no tiene suficiente carga computacional para justificar el paralelismo. 
+El programa escala mal no porque esté mal programado, sino porque el problema es demasiado pequeño para que OpenMP tenga algo concreto que repartir.
+
+
+

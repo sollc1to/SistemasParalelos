@@ -1,0 +1,39 @@
+En el ejercicio 8 del TP 3, tenemos los siguientes tiempos: 
+
+Programa 1 (Sin optimizar)
+
+Tiempo transcurrido 44.863385 segundos
+
+Programa 2 (OPtimizado)
+
+Tiempo transucrrido 4.119185 segundos
+
+El speedup es S= 44.863385/4.119185 = 10.89132559
+
+El speed up indica la mejora de nuestro programa paralelo en relacion al programa
+secuencial, es decir nuestro programa se ejecuta 10 veces mas rapido que el programa sin optimizar.
+
+Si queremos verlo en modo porcentaje, tenemos que hacer (10.89132559/44.863385)*100 = 24% aproximadamente.
+Tenemos una mejora de aproximadamente 24%.
+
+
+En el ejercicio 10 del TP3, tenemos los siguientes tiempos: 
+
+
+Programa 1 (Sin optimizar)
+
+Tiempo transcurrido: 1.550622
+
+Programa 2: (Optimizado)
+
+Tiempo transcurrido 1.645987
+
+El speed up es S = 1.550622/1.645987 = 0.942062118
+
+Es decir, se ejecuta 0.94 veces más lento que el programa secuencial, pierde rendimiento ya que S <1.
+
+(1 - 0.94) * 100 ≈ 6% Aproximadamente 6% mas lento que el programa original.
+
+
+
+ 

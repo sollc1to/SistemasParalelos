@@ -1,0 +1,5 @@
+resultado = (condición) ? A : B
+A -> Si la condicion es true.
+B -> Si la condicion es false.
+
+
