@@ -1,0 +1,7 @@
+a. Cada hilo se presenta una vez.
+b. Cada hilo imprime el mismo id, esto es porque todos imprimen el id
+del último hilo que modifico a esta, es una sección critica.
+c. En este caso cada hilo saluda una vez. Se imprimen las id de [0,..,9]
+Esto es porque al ser privada la variable, cada hilo realiza su modificación de
+la variable.
+

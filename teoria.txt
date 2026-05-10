@@ -1,0 +1,259 @@
+================================================================
+CONCEPTOS FUNDAMENTALES DE PROGRAMACION PARALELA
+Basado en: An Introduction to Parallel Programming - Pacheco
+================================================================
+
+----------------------------------------------------------------
+1. TAXONOMIA DE FLYNN
+----------------------------------------------------------------
+
+Flynn clasifica los sistemas de computo segun la cantidad de
+flujos de instrucciones y flujos de datos que pueden manejar
+simultaneamente.
+
+SISD - Single Instruction, Single Data
+    El modelo clasico de Von Neumann. Ejecuta una instruccion
+    a la vez sobre un dato a la vez. Es un procesador serial
+    comun y corriente.
+
+    Ejemplo: una PC vieja con un solo nucleo ejecutando
+    un programa C sin paralelismo.
+
+SIMD - Single Instruction, Multiple Data
+    Una sola instruccion se aplica simultaneamente a multiples
+    datos. Tiene una unidad de control y multiples ALUs.
+    La instruccion se transmite a todas las ALUs a la vez,
+    y cada ALU la aplica a su propio dato (o queda inactiva).
+
+    Ejemplo clasico del libro: suma de vectores
+        for (i = 0; i < n; i++)
+            x[i] += y[i];
+
+    Con n ALUs, se carga x[i] e y[i] en la ALU i, y todas
+    ejecutan la suma al mismo tiempo. Si hay menos ALUs que
+    elementos, se procesan en bloques.
+
+    Limitacion: si hay un condicional como
+        if (y[i] > 0.0) x[i] += y[i];
+    las ALUs donde y[i] <= 0 quedan inactivas mientras
+    las demas suman. Esto degrada el rendimiento.
+
+    Ejemplos reales: GPUs, instrucciones SSE/AVX de Intel.
+
+MISD - Multiple Instruction, Single Data
+    Multiples instrucciones distintas sobre el mismo dato.
+    Tiene uso muy limitado en la practica.
+    El libro no lo desarrolla como categoria relevante.
+
+MIMD - Multiple Instruction, Multiple Data
+    Cada procesador ejecuta instrucciones distintas sobre
+    datos distintos de forma independiente.
+    Es el modelo mas flexible y el mas usado actualmente.
+
+    Hay dos tipos principales:
+
+    Memoria compartida (shared-memory):
+        Los procesadores estan conectados a una memoria
+        comun. Se comunican leyendo y escribiendo en
+        estructuras de datos compartidas.
+        Ejemplo: una PC multicore actual. Los nucleos
+        comparten la RAM y se sincronizan con mutex.
+
+    Memoria distribuida (distributed-memory):
+        Cada procesador tiene su propia memoria privada.
+        Se comunican enviando mensajes por red.
+        Ejemplo: un cluster como el de la facultad, donde
+        cada nodo tiene su RAM y se comunican por MPI.
+
+----------------------------------------------------------------
+2. SPEEDUP
+----------------------------------------------------------------
+
+El speedup mide cuanto mas rapido es el programa paralelo
+respecto al serial.
+
+    S = Tserial / Tparallel
+
+Donde:
+    Tserial   = tiempo de ejecucion del programa serial
+    Tparallel = tiempo de ejecucion del programa paralelo
+
+Speedup lineal (ideal):
+    Si usamos p cores y el trabajo se divide perfectamente,
+    el programa deberia ser p veces mas rapido: S = p.
+    Esto se llama speedup lineal y es el mejor caso posible.
+
+En la practica el speedup lineal casi nunca se alcanza porque
+paralelizar introduce overhead (ver seccion 4).
+
+Ejemplo de la tabla del libro:
+    p=1  -> S=1.0
+    p=2  -> S=1.9  (casi lineal)
+    p=4  -> S=3.6
+    p=8  -> S=6.5
+    p=16 -> S=10.8 (lejos del ideal de 16)
+
+A medida que aumentan los cores, el speedup crece pero cada
+vez se aleja mas del ideal.
+
+----------------------------------------------------------------
+3. EFICIENCIA
+----------------------------------------------------------------
+
+La eficiencia mide que tan bien se estan aprovechando los
+cores. Se define como:
+
+    E = S / p = Tserial / (p * Tparallel)
+
+Donde p es la cantidad de procesos/hilos.
+
+Con speedup lineal, E = 1 (eficiencia perfecta, 100%).
+En la practica E < 1 porque hay overhead.
+
+Ejemplo de la tabla del libro:
+    p=1  -> E=1.00 (100%)
+    p=2  -> E=0.95 (95%)
+    p=4  -> E=0.90 (90%)
+    p=8  -> E=0.81 (81%)
+    p=16 -> E=0.68 (68%)
+
+Efecto del tamaño del problema:
+    Si se aumenta el tamaño del problema manteniendo p fijo,
+    la eficiencia generalmente SUBE porque hay mas trabajo
+    util para repartir y el overhead representa una fraccion
+    menor del tiempo total.
+    Si se reduce el tamaño, la eficiencia BAJA.
+
+----------------------------------------------------------------
+4. OVERHEAD
+----------------------------------------------------------------
+
+El overhead es el tiempo extra que introduce la paralelizacion
+y que no existe en el programa serial.
+
+    Tparallel = Tserial/p + Toverhead
+
+Fuentes de overhead segun el libro:
+
+En programas de memoria compartida:
+    - Secciones criticas que deben ejecutarse serialmente
+      (un hilo a la vez via mutex).
+    - Llamadas a funciones de sincronizacion (mutex_lock,
+      mutex_unlock) que no estan en el programa serial.
+
+En programas de memoria distribuida:
+    - Transmision de datos por red entre procesos, que es
+      mucho mas lenta que el acceso a memoria local.
+    - A mas procesos, mas datos hay que transmitir.
+
+El overhead tiende a CRECER al aumentar p:
+    - Mas hilos = mas contención en secciones criticas.
+    - Mas procesos = mas mensajes por la red.
+
+Esto explica por que la eficiencia cae al aumentar los cores.
+
+----------------------------------------------------------------
+5. LEY DE AMDAHL
+----------------------------------------------------------------
+
+Gene Amdahl observo en los años 60 que si una fraccion del
+programa NO puede paraleizarse, el speedup maximo posible
+esta limitado sin importar cuantos cores se usen.
+
+Formula:
+    Si r es la fraccion serial (no paralelizable):
+    Speedup maximo = 1/r
+
+Ejemplo del libro:
+    Programa de Tserial = 20 segundos.
+    Se puede paralelizar el 90%, queda un 10% serial.
+    r = 0.1
+
+    Tparallel = (0.9 * 20)/p + (0.1 * 20)
+    Tparallel = 18/p + 2
+
+    Con p = 1000 cores:
+    Tparallel ≈ 0 + 2 = 2 segundos
+
+    Speedup maximo = 20/2 = 10
+
+    Es decir: aunque se tengan 1000 cores y se paralelice
+    perfectamente el 90%, NUNCA se podra superar un speedup
+    de 10. El 10% serial es el cuello de botella.
+
+    Speedup maximo = 1/r = 1/0.1 = 10
+
+Otro ejemplo concreto:
+    Si solo el 1% del programa es serial (r=0.01), con miles
+    de cores el speedup maximo es 1/0.01 = 100.
+    No importa tener un millon de cores: no se puede pasar de 100.
+
+La ley de Amdahl es pesimista pero el libro señala que
+no hay que alarmarse porque:
+    1. No considera el tamaño del problema (ver Gustafson).
+    2. Muchos programas reales obtienen speedups excelentes.
+    3. Un speedup de 5 o 10 suele ser mas que suficiente.
+
+----------------------------------------------------------------
+6. LEY DE GUSTAFSON
+----------------------------------------------------------------
+
+John Gustafson respondio a Amdahl con una perspectiva distinta.
+
+La critica a Amdahl: asume que el tamaño del problema es fijo.
+En la practica, si tenemos mas cores, usualmente AUMENTAMOS
+el tamaño del problema para aprovecharlos, no corremos el
+mismo problema mas rapido.
+
+Idea central de Gustafson:
+    Cuando se aumenta el tamaño del problema, la fraccion
+    serial del programa se vuelve proporcionalmente mas
+    pequeña respecto al total. Es decir, el trabajo
+    paralelizable crece, pero el trabajo serial no crece
+    al mismo ritmo (o no crece).
+
+Ejemplo concreto:
+    Supone un programa donde:
+    - La parte serial tarda siempre 1 segundo (fija).
+    - La parte paralela tarda 9 segundos con 1 core.
+
+    Con 1 core:  total = 10 segundos. Fraccion serial = 10%.
+    Con 10 cores: la parte paralela se divide entre 10
+                  -> tarda 0.9 segundos.
+                  Total = 1 + 0.9 = 1.9 segundos.
+
+    Ahora si se aumenta el problema 10 veces:
+    - Parte serial sigue tardando ~1 segundo.
+    - Parte paralela ahora tarda 90 segundos con 1 core,
+      pero con 10 cores tarda 9 segundos.
+    - Total = 1 + 9 = 10 segundos.
+    - Speedup respecto al serial = 100/10 = 10. Mucho mejor.
+
+Conclusion de Gustafson:
+    Al escalar el problema junto con los cores, el speedup
+    real puede crecer de forma mucho mas favorable que lo
+    que predice Amdahl. La ley de Amdahl es un limite para
+    problema fijo; Gustafson describe lo que pasa cuando
+    se escala el problema.
+
+En terminos practicos: en HPC (clusters, supercomputadoras)
+siempre se trabaja con problemas grandes que crecen con los
+recursos, por eso los speedups reales suelen ser mucho
+mejores que los que Amdahl predicaria.
+
+================================================================
+RESUMEN DE FORMULAS
+================================================================
+
+Speedup:       S = Tserial / Tparallel
+Eficiencia:    E = S / p = Tserial / (p * Tparallel)
+Amdahl:        S_max = 1 / r   (r = fraccion serial)
+Overhead:      Tparallel = Tserial/p + Toverhead
+
+Relacion entre conceptos:
+    - Mas overhead -> menor speedup -> menor eficiencia.
+    - Mas cores -> mas overhead -> eficiencia cae.
+    - Problema mas grande -> overhead relativamente menor
+      -> eficiencia sube (Gustafson).
+
+================================================================

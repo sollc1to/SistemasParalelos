@@ -1,0 +1,76 @@
+(a) Salida con la variable var private:
+
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+ var (in): 29072
+var (out): 10
+
+Como la variable no esta inicializada, tiene valor basura.
+
+(b) Salida con la variable var firstprivate: 
+
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+var (out): 10
+
+Obtenemos el valor 10 de la inicializacion del main, pero no modificamos el valor del main.
+
+(c) Salida con la variable var shared:
+
+
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+ var (in): 11
+var (out): 11
+
+Todos los hilos obtienen la variable con valor 10, le suman uno e imprimen.
+Hay un problema con la seccion critica pq todos acceden  a la variable y la modifican al mismo tiempo
+(d) Salida con la variable var shared y seccion critica:
+
+
+ var (in): 11
+ var (in): 12
+ var (in): 13
+ var (in): 14
+ var (in): 15
+ var (in): 16
+ var (in): 17
+ var (in): 18
+ var (in): 19
+ var (in): 20
+ var (in): 21
+ var (in): 22
+var (out): 22
+
+
+Como van de a uno, iteran de a uno la variable.
+La directiva critical crea un punto de consistencia de memoria, es decir, los distintos hilos/procesos
+ejecutaran esa seccion por turnos. La consecuencia de esto es que se pierde el paralelismo.

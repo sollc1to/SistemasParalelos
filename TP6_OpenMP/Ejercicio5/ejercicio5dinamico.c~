@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <omp.h>
+q
+void
+main ()
+{
+  long num_steps = 800000000;
+  double step;
+  int i, paso;
+  double x, pi, sum = 0.0;
+double* suma;
+
+
+  step = 1.0 / (double) num_steps;
+
+#pragma omp parallel shared(num_steps) shared(step) shared(x) shared(suma)
+int hilosDisponibles = omp_get_num_threads();
+int id = omp_get_thread_num(); //Obtenemos id del hilo
+int	ini,
+	final;
+
+paso = num_steps/hilosDisponibles; //suponemos resto 0
+
+ini = id*paso;
+final = (id+1)*paso;
+
+
+  for (ini; ini < final; ini++)
+    {
+      x = (ini + 0.5) * step;
+      suma[id] = suma[id] + 4.0 / (1.0 + x * x);
+    }
+
+}
+
+
+  pi = step * sum;
+  printf ("%f\n", pi);
+
+
+  return 0; 
+
+}
