@@ -1,0 +1,48 @@
+Cálculo de Speedup - Ejercicio 5
+
+Tiempo secuencial:
+T(1) = 2.026296 s
+
+
+2 hilos:
+T(2) = 2.959268 s
+
+S(2) = T(1) / T(2)
+S(2) = 2.026296 / 2.959268
+S(2) = 0.6847
+
+
+4 hilos:
+T(4) = 5.972046 s
+
+S(4) = 2.026296 / 5.972046
+S(4) = 0.3393
+
+
+6 hilos:
+T(6) = 3.239551 s
+
+S(6) = 2.026296 / 3.239551
+S(6) = 0.6255
+
+
+8 hilos:
+T(8) = 3.887657 s
+
+S(8) = 2.026296 / 3.887657
+S(8) = 0.5212
+
+
+Interpretación:
+
+El speedup indica cuánto mejora el rendimiento del programa paralelo respecto al secuencial.
+
+En este caso, todos los valores de speedup son menores que 1, por lo tanto la versión paralela es más lenta que la secuencial.
+
+Esto puede ocurrir por:
+- Overhead de creación y sincronización de hilos.
+- Mala distribución de tareas.
+- Contención de recursos compartidos.
+- Problema demasiado pequeño para aprovechar el paralelismo.
+
+La peor performance se observa con 4 hilos, donde el tiempo aumenta considerablemente.
